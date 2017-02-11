@@ -43,3 +43,10 @@ highlight Search ctermbg=0
 
 " Default Synastic Checkers
 let g:syntastic_javascript_checkers = ['eslint']
+
+" Vim diff colors
+hi DiffChange term=bold ctermbg=7
+hi DiffText term=bold ctermbg=8
+hi DiffAdd term=bold ctermbg=17
+hi DiffDelete term=bold ctermbg=1
+
