@@ -12,6 +12,32 @@ execute pathogen#infect()
 " use 'hh' as an alternate to the Escape key
 imap hh <Esc>
 
+noremap t <Up>
+noremap n <Down>
+noremap s <Right>
+
+noremap f n
+noremap F N
+
+map <Left> <nop>
+map <Right> <nop>
+map <Up> <nop>
+map <Down> <nop>
+
+" Remap direction commands in the Explorer (netrw)
+augroup netrw_mapping
+    autocmd!
+    autocmd filetype netrw call NetrwMapping()
+augroup END
+
+function! NetrwMapping()
+    noremap <buffer> h <Left>
+    noremap <buffer> t <Up>
+    noremap <buffer> n <Down>
+    noremap <buffer> s <Right>
+endfunction
+
+
 " show line numbers and the line/column and the bottom right
 set nu
 set ruler
