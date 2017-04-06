@@ -2,6 +2,10 @@
 " mkdir -p ~/.vim/autoload ~/.vim/bundle && \
 " curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
 
+" elm-vim is dependent on plug beginning, but is loaded via pathogen
+call plug#begin()
+call plug#end()
+
 " start pathogen:
 execute pathogen#infect()
 
@@ -17,11 +21,16 @@ syntax on
 set list
 
 " Force the use of spaces instead of tabs
-" indents always equal 2, and line breaks indent to previous indentation value
 set expandtab
-set sw=2
-set tabstop=2
+
+" Set line breaks indent to previous indentation value
 set autoindent
+
+" For js, indents always equal 2
+autocmd Filetype javascript setlocal ts=2 sw=2
+
+" For elm, we match elm-format
+autocmd Filetype elm setlocal ts=4 sw=4 sts=0
 
 " Fix strange backspace settings in 7.4 for Mac
 set backspace=indent,eol,start
@@ -41,8 +50,14 @@ let g:syntastic_check_on_wq = 0
 let g:syntastic_loc_list_height = 2
 highlight Search ctermbg=0
 
+" elm-vim specific settings
+let g:elm_syntastic_show_warnings = 1
+let g:elm_format_autosave = 1
+let g:elm_make_output_file = "index.html"
+
 " Default Synastic Checkers
 let g:syntastic_javascript_checkers = ['eslint']
+let g:syntastic_elm_checkers = ['elm_make']
 
 " Vim diff colors
 hi DiffChange term=bold ctermbg=7
