@@ -9,9 +9,6 @@ call plug#end()
 " start pathogen:
 execute pathogen#infect()
 
-" use 'hh' as an alternate to the Escape key
-imap hh <Esc>
-
 noremap t <Up>
 noremap n <Down>
 noremap s <Right>
