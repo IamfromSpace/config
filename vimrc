@@ -35,6 +35,9 @@ autocmd Filetype elm setlocal ts=4 sw=4 sts=0
 " Fix strange backspace settings in 7.4 for Mac
 set backspace=indent,eol,start
 
+" Always show the tab bar
+set showtabline=2
+
 " Recommended settings for Syntastic
 " See (github.com/scrooloose/syntastic)
 set statusline+=%#warningmsg#
