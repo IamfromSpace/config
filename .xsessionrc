@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# Touchpad settings
+synclient MaxTapTime=0 # disable tap-to-click (180 default)
+synclient HorizTwoFingerScroll=1 # enable side-scrolling (0 default)
+synclient PalmDetect=1 # enable palm detection (0 default)
+
+xcompmgr -n &
+xscreensaver &
+
+exec xmonad
