@@ -137,7 +137,7 @@ dishes h s nmaster dishesPerStack n = if n <= nmaster
         (remainder, filledDishStackCount + 1)
 
     (masterRect, dishesRect) =
-      splitVerticallyBy (1 - (fromIntegral dishStackCount) * h) s
+      splitVerticallyBy (1 - fromIntegral dishStackCount * h) s
 
     dishStackRects =
       splitVertically dishStackCount dishesRect
