@@ -21,6 +21,7 @@ import XMonad.Layout.WindowNavigation
 import XMonad.Layout.PerWorkspace
 import XMonad.Actions.SpawnOn
 import XMonad.Actions.CycleWS (nextWS, prevWS, shiftToNext, shiftToPrev)
+import XMonad.Actions.Navigation2D
 import XMonad.Util.EZConfig
 
 
@@ -32,7 +33,7 @@ myLayout = windowNavigation
     -- one master window, 45% of the screen, with resize disallowed
     tiled = Tall 1 (5/100) (7/16)
 
-main = xmonad $ defaultConfig {
+main = xmonad $ withNavigation2DConfig def $ def {
   workspaces = ["1:browsing", "2", "3", "4", "5", "6", "7", "8", "9"],
   logHook = fadeInactiveLogHook 0.8,
   borderWidth = 2,
@@ -61,19 +62,25 @@ main = xmonad $ defaultConfig {
       [ ((controlMask, xK_space), spawn "battery")
       , ((mod4Mask .|. mod1Mask, xK_Delete), spawn "xscreensaver-command -lock")
 
-      -- (For Dvorak) change focus up/down with the right hand middle fingers
-      -- move a window up or down in prority with shift + middle fingers
-      , ((mod4Mask, xK_t), windows W.focusUp)
-      , ((mod4Mask .|. shiftMask, xK_t), windows W.swapUp)
-      , ((mod4Mask, xK_n), windows W.focusDown)
-      , ((mod4Mask .|. shiftMask, xK_n), windows W.swapDown)
+      -- (For Dvorak) change window focus 2D
+      , ((mod4Mask, xK_h), windowGo L False)
+      , ((mod4Mask, xK_t), windowGo U False)
+      , ((mod4Mask, xK_n), windowGo D False)
+      , ((mod4Mask, xK_s), windowGo R False)
 
-      -- (For Dvorak) change workspaces left/right with the right hand outside fingers
-      -- move a window to a left or right workspace with shiftMask (and follow it)
-      , ((mod4Mask, xK_h), prevWS)
-      , ((mod4Mask .|. shiftMask, xK_h), shiftToPrev *> prevWS)
-      , ((mod4Mask, xK_s), nextWS)
-      , ((mod4Mask .|. shiftMask, xK_s), shiftToNext *> nextWS)
+      -- (For Dvorak) swap windows 2D
+      , ((mod4Mask .|. controlMask, xK_h), windowSwap L False)
+      , ((mod4Mask .|. controlMask, xK_t), windowSwap U False)
+      , ((mod4Mask .|. controlMask, xK_n), windowSwap D False)
+      , ((mod4Mask .|. controlMask, xK_s), windowSwap R False)
+
+      -- (For Dvorak) change workspace focus 2D
+      , ((mod4Mask .|. shiftMask, xK_h), prevWS)
+      , ((mod4Mask .|. shiftMask, xK_s), nextWS)
+
+      -- (For Dvorak) move focused window to workspace in 2D dir, and follow it
+      , ((mod4Mask .|. shiftMask .|. controlMask, xK_h), shiftToPrev *> prevWS)
+      , ((mod4Mask .|. shiftMask .|. controlMask, xK_s), shiftToNext *> nextWS)
 
       -- Jump to the master, or set the current focus to the master
       , ((mod4Mask .|. shiftMask, xK_m), windows W.swapMaster)
