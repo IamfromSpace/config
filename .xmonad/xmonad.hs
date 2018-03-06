@@ -27,7 +27,7 @@ import XMonad.Util.EZConfig
 myLayout = windowNavigation
     $ smartBorders
     $ onWorkspace "1:browsing" (OneBig (15/16) (15/16))
-    $ Dishes 2 3 (1/7) ||| Full
+    $ Dishes 2 3 (1/7) ||| Full ||| Aspect
   where
     -- one master window, 45% of the screen, with resize disallowed
     tiled = Tall 1 (5/100) (7/16)
@@ -80,6 +80,37 @@ main = xmonad $ defaultConfig {
       , ((mod4Mask, xK_m), windows W.focusMaster)
       ]
 
+-- Experimental WIP layout that is based on preserving a target aspect ratio
+-- where possible for two or more windows.  An example might be for YouTube
+-- broadcasting.  You want to have two screens that are both 16:9, one for
+-- viewing the feed (which is 16:9) and one to broadcast to the feed,
+-- (which is also 16:9).  You may want one to be larger than the other, but
+-- the aspect ratio should always be preserved.  As of right now, you get
+-- the excess rects (assuming that there even is any remainder), but that's it,
+-- the other 5th+ windows are hidden.
+data Aspect a = Aspect deriving (Show, Read)
+instance LayoutClass Aspect a where
+    pureLayout _ r =
+        ap zip (aspect r . length) . W.integrate
+    pureMessage x m = Nothing
+
+aspect :: Rectangle -> Int -> [Rectangle]
+aspect r n =
+  let
+    aspect = (fromIntegral (rect_width r)) / (fromIntegral (rect_height r))
+    topCut = 2/5
+    target = 16/9
+    cutPoint = (1 / aspect) * target
+  in
+    if n <= 0 then
+      [r]
+    else
+      let
+        (top,bottom) = splitVerticallyBy topCut r
+        (tr, tl) = splitHorizontallyBy (1 - cutPoint * topCut) top
+        (br, bl) = splitHorizontallyBy (cutPoint * (1 - topCut)) bottom
+      in
+        [br,tl,bl,tr]
 
 -- Altered version of Dishes that allows more than one dish per stack,
 -- and splits stacks horizontally.  It also accepts a second
