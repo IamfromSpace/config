@@ -19,10 +19,12 @@ import XMonad.Layout
 import XMonad.Layout.BoringWindows
 import XMonad.Layout.WindowNavigation
 import XMonad.Layout.PerWorkspace
+import qualified XMonad.StackSet as Set
 import XMonad.Actions.SpawnOn
 import XMonad.Actions.CycleWS (nextWS, prevWS, shiftToNext, shiftToPrev)
 import XMonad.Actions.Navigation2D
 import XMonad.Util.EZConfig
+import qualified Data.List as List
 
 
 myLayout = windowNavigation
@@ -75,8 +77,10 @@ main = xmonad $ withNavigation2DConfig def $ def {
       , ((mod4Mask .|. controlMask, xK_s), windowSwap R False)
 
       -- (For Dvorak) change workspace focus 2D
-      , ((mod4Mask .|. shiftMask, xK_h), prevWS)
-      , ((mod4Mask .|. shiftMask, xK_s), nextWS)
+      , ((mod4Mask .|. shiftMask, xK_h), doWsNav2D L)
+      , ((mod4Mask .|. shiftMask, xK_t), doWsNav2D U)
+      , ((mod4Mask .|. shiftMask, xK_n), doWsNav2D D)
+      , ((mod4Mask .|. shiftMask, xK_s), doWsNav2D R)
 
       -- (For Dvorak) move focused window to workspace in 2D dir, and follow it
       , ((mod4Mask .|. shiftMask .|. controlMask, xK_h), shiftToPrev *> prevWS)
@@ -156,3 +160,31 @@ dishes h s nmaster dishesPerStack n = if n <= nmaster
 
     ws =
       splitHorizontally nmaster masterRect ++ allDishRects
+
+
+doWsNav2D :: Direction2D -> X ()
+doWsNav2D dir =
+  fmap (workspaces . config) ask >>= (windows . wsNav2D dir)
+
+wsNav2D :: (Eq i, Eq s) => Direction2D -> [i] -> Set.StackSet i l a s sd -> Set.StackSet i l a s sd
+wsNav2D dir orderedWsTags set =
+  let
+    clamp a b = max a . min b
+    maybeIndex = List.elemIndex (Set.currentTag set) orderedWsTags
+    getNewIndex i =
+      let
+        (q,r) = (i `quotRem` 3)
+        (q2,r2) = case dir of
+          U -> (q + 1, r)
+          D -> (q - 1, r)
+          R -> (q, r + 1)
+          L -> (q, r - 1)
+      in
+        clamp 0 2 q2 * 3 + clamp 0 2 r2
+  in
+    -- Note that (!!) isn't total, but it _should_ be impossible
+    -- to try to retrieve an index that doesn't exist, that would
+    -- indicate a bug.
+    case fmap ((!!) orderedWsTags . getNewIndex) maybeIndex of
+      Just i -> Set.view i set
+      Nothing -> set
