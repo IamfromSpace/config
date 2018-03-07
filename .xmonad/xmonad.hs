@@ -83,8 +83,10 @@ main = xmonad $ withNavigation2DConfig def $ def {
       , ((mod4Mask .|. shiftMask, xK_s), doWsNav2D R)
 
       -- (For Dvorak) move focused window to workspace in 2D dir, and follow it
-      , ((mod4Mask .|. shiftMask .|. controlMask, xK_h), shiftToPrev *> prevWS)
-      , ((mod4Mask .|. shiftMask .|. controlMask, xK_s), shiftToNext *> nextWS)
+      , ((mod4Mask .|. shiftMask .|. controlMask, xK_h), doWsShift2D L *> doWsNav2D L)
+      , ((mod4Mask .|. shiftMask .|. controlMask, xK_t), doWsShift2D U *> doWsNav2D U)
+      , ((mod4Mask .|. shiftMask .|. controlMask, xK_n), doWsShift2D D *> doWsNav2D D)
+      , ((mod4Mask .|. shiftMask .|. controlMask, xK_s), doWsShift2D R *> doWsNav2D R)
 
       -- Jump to the master, or set the current focus to the master
       , ((mod4Mask .|. shiftMask, xK_m), windows W.swapMaster)
@@ -163,11 +165,23 @@ dishes h s nmaster dishesPerStack n = if n <= nmaster
 
 
 doWsNav2D :: Direction2D -> X ()
-doWsNav2D dir =
-  fmap (workspaces . config) ask >>= (windows . wsNav2D dir)
+doWsNav2D = doWs2D Set.view
 
-wsNav2D :: (Eq i, Eq s) => Direction2D -> [i] -> Set.StackSet i l a s sd -> Set.StackSet i l a s sd
-wsNav2D dir orderedWsTags set =
+doWsShift2D :: Direction2D -> X ()
+doWsShift2D = doWs2D Set.shift
+
+{-
+doWs2D :: this type def is really ugly, so I'm letting the inference handle this one... -}
+doWs2D op dir =
+  fmap (workspaces . config) ask >>= (windows . ws2D op dir)
+
+ws2D :: (Ord a, Eq i, Eq s) =>
+  (i -> Set.StackSet i l a s sd -> Set.StackSet i l a s sd) ->
+  Direction2D ->
+  [i] ->
+  Set.StackSet i l a s sd ->
+  Set.StackSet i l a s sd
+ws2D op dir orderedWsTags set =
   let
     clamp a b = max a . min b
     maybeIndex = List.elemIndex (Set.currentTag set) orderedWsTags
@@ -186,5 +200,5 @@ wsNav2D dir orderedWsTags set =
     -- to try to retrieve an index that doesn't exist, that would
     -- indicate a bug.
     case fmap ((!!) orderedWsTags . getNewIndex) maybeIndex of
-      Just i -> Set.view i set
+      Just i -> op i set
       Nothing -> set
