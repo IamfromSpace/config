@@ -104,7 +104,7 @@ instance LayoutClass Aspect a where
 aspect :: Rectangle -> Int -> [Rectangle]
 aspect r n =
   let
-    aspect = (fromIntegral (rect_width r)) / (fromIntegral (rect_height r))
+    aspect = fromIntegral (rect_width r) / fromIntegral (rect_height r)
     topCut = 2/5
     target = 16/9
     cutPoint = (1 / aspect) * target
