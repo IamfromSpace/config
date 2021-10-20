@@ -56,12 +56,12 @@ set list
 " Force the use of spaces instead of tabs
 set expandtab
 
+" Default indentation of 2
+set sw=2
+set tabstop=2
+
 " Set line breaks indent to previous indentation value
 set autoindent
-
-" For js, indents always equal 2
-autocmd Filetype javascript setlocal ts=2 sw=2
-autocmd Filetype openscad setlocal ts=2 sw=2
 
 " For elm, we match elm-format
 autocmd Filetype elm setlocal ts=4 sw=4 sts=0
