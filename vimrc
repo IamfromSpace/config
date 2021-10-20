@@ -59,6 +59,7 @@ autocmd Filetype openscad setlocal ts=2 sw=2
 
 " For elm, we match elm-format
 autocmd Filetype elm setlocal ts=4 sw=4 sts=0
+autocmd Filetype haskell setlocal ts=4 sw=4 sts=0
 
 " Fix strange backspace settings in 7.4 for Mac
 set backspace=indent,eol,start
