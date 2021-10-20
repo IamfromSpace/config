@@ -36,6 +36,12 @@ function! NetrwMapping()
     noremap <buffer> t <Up>
     noremap <buffer> n <Down>
     noremap <buffer> s <Right>
+
+    noremap T <PageUp>
+    noremap N <PageDown>
+
+    noremap f n
+    noremap F N
 endfunction
 
 
