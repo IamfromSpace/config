@@ -73,6 +73,9 @@ set backspace=indent,eol,start
 " Always show the tab bar
 set showtabline=2
 
+" Spellcheck for markdown files
+autocmd FileType markdown setlocal spell
+
 " Autoformat JS on save
 autocmd BufWritePre *.js Neoformat
 autocmd BufWritePre *.hs Neoformat hindent
