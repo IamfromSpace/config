@@ -14,6 +14,9 @@ noremap t <Up>
 noremap n <Down>
 noremap s <Right>
 
+noremap T <PageUp>
+noremap N <PageDown>
+
 noremap f n
 noremap F N
 
