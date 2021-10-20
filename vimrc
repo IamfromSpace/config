@@ -91,9 +91,13 @@ let g:elm_syntastic_show_warnings = 1
 let g:elm_format_autosave = 1
 let g:elm_make_output_file = "index.html"
 
+" rust-vim specific settings
+let g:rustfmt_autosave = 1
+
 " Default Synastic Checkers
 let g:syntastic_javascript_checkers = ['eslint']
 let g:syntastic_elm_checkers = ['elm_make']
+let g:syntastic_rust_checkers = ['cargo']
 
 " Vim diff colors
 hi DiffChange term=bold ctermbg=7
