@@ -4,6 +4,7 @@
 
 " elm-vim is dependent on plug beginning, but is loaded via pathogen
 call plug#begin()
+Plug 'sbdchd/neoformat'
 call plug#end()
 
 " start pathogen:
@@ -60,6 +61,10 @@ set backspace=indent,eol,start
 
 " Always show the tab bar
 set showtabline=2
+
+" Autoformat JS on save
+autocmd BufWritePre *.js Neoformat
+autocmd BufWritePre *.hs Neoformat hindent
 
 " Recommended settings for Syntastic
 " See (github.com/scrooloose/syntastic)
