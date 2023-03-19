@@ -45,6 +45,7 @@ myLayout =
 main = do
     xmproc <- spawnPipe "xmobar"
     xmonad $
+      docks $
         withNavigation2DConfig def $
         def
         { workspaces = ["1:browsing", "2", "3", "4", "5", "6", "7", "8", "9"]
@@ -60,7 +61,6 @@ main = do
         , focusedBorderColor = "#00FF00"
         , focusFollowsMouse = False
         , modMask = mod4Mask
-        , manageHook = manageDocks <+> manageHook defaultConfig
         , layoutHook = myLayout
         } `removeKeys`
         removedKeys `additionalKeysP`
