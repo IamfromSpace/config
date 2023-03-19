@@ -62,6 +62,7 @@ main = do
         , focusFollowsMouse = False
         , modMask = mod4Mask
         , layoutHook = myLayout
+        , terminal = "alacritty"
         } `removeKeys`
         removedKeys `additionalKeysP`
         specialKeys `additionalKeys`
