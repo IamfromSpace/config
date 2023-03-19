@@ -36,8 +36,8 @@ myLayout =
     avoidStruts $
     windowNavigation $
     smartBorders $
-    onWorkspace "1:browsing" (OneBig (15 / 16) (15 / 16)) $
-    Dishes 2 3 (1 / 7) ||| Full ||| Aspect
+    onWorkspace "5:browsing" (OneBig (15 / 16) (15 / 16)) $
+    Dishes 2 3 (1 / 7) ||| Full
     -- one master window, 45% of the screen, with resize disallowed
   where
     tiled = Tall 1 (5 / 100) (7 / 16)
