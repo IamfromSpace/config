@@ -87,6 +87,7 @@ main = do
         [ ((controlMask, xK_space), spawn "battery")
         , ( (mod4Mask .|. mod1Mask, xK_Delete)
           , spawn "xscreensaver-command -lock")
+        , ( (mod4Mask, xK_p), spawn "rofi -modi drun,ssh,window -show drun -show-icons")
       -- (For Dvorak) change window focus 2D
         , ((mod4Mask, xK_h), windowGo L False)
         , ((mod4Mask, xK_t), windowGo U False)
