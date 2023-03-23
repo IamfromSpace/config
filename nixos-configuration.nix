@@ -109,7 +109,7 @@
     extraGroups = [ "wheel" "video" "audio" "disk" "networkmanager" ]; # "wheel" enables ‘sudo’ for the user.
     packages = with pkgs; [
       chromium
-      zoom
+      zoom-us
     ];
     uid = 1000;
   };
@@ -135,6 +135,11 @@
     # Ideally, we want to figure out how to do a full nix mode
     stack
   ];
+
+  # By default, NixOS only allows freely licensed software.  Rather than
+  # disabling this, we can allow specific packages.
+  nixpkgs.config.allowUnfreePredicate =
+    pkg: (lib.getName pkg) == "zoom";
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
