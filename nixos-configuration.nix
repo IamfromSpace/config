@@ -156,7 +156,7 @@
       merge.conflictstyle = "diff3";
 
       # Universally ignore files that vim uses
-      core.excludesfile = [ "*.swp" "*.swo" ];
+      core.excludesFile = [ "*.swp" "*.swo" ];
     };
   };
 
