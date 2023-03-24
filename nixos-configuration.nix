@@ -170,6 +170,10 @@
 
   # List services that you want to enable:
 
+  # Use physlock to manage screen locking.  It's pretty ugly,
+  # but it works.
+  services.physlock.enable = true;
+
   # Enable the OpenSSH daemon.
   # services.openssh.enable = true;
 
