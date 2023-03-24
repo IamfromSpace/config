@@ -149,6 +149,9 @@
   #   enableSSHSupport = true;
   # };
 
+  # Vi keybindings in bash, ftw!
+  programs.bash.interactiveShellInit = "set -o vi";
+
   programs.git = {
     enable = true;
     config = {
