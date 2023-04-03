@@ -2,12 +2,21 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, ... }: with builtins;
 
+let
+  # There's no XPS 13 9315 entry, so we cobble together a few
+  # pieces from here.
+  nixos_hardware = builtins.fetchGit { url = "https://github.com/NixOS/nixos-hardware.git"; };
+
+in
 {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      "${nixos_hardware}/common/cpu/intel"
+      "${nixos_hardware}/common/pc/laptop"
+      "${nixos_hardware}/common/pc/ssd"
     ];
 
   # Use the systemd-boot EFI boot loader.
@@ -32,8 +41,8 @@
   # Ensure that closing the lid of the laptop puts it to sleep (XPS 13 specific)
   boot.kernelParams = [ "mem_sleep_default=deep" ];
 
-  # Optimization when using SSD
-  services.fstrim.enable = lib.mkDefault true;
+  # This seems to be highly recommended for most XPS models
+  services.thermald.enable = lib.mkDefault true;
 
   # networking.hostName = "nixos"; # Define your hostname.
   # Pick only one of the below networking options.
@@ -97,8 +106,14 @@
   # services.printing.enable = true;
 
   # Enable sound.
-  # sound.enable = true;
-  # hardware.pulseaudio.enable = true;
+  sound.enable = true;
+  hardware.pulseaudio = {
+    enable = true;
+    # Needed to get any audio output on the XPS 13
+    package = pkgs.pulseaudioFull;
+  };
+  # Needed to get audio input on the XPS 13
+  services.pipewire.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.nathan = {
