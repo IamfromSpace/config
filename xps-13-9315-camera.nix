@@ -290,11 +290,4 @@ in {
   boot.extraModprobeConfig = ''
     options v4l2loopback exclusive_caps=1 card_label="${webcamName}"
   '';
-
-  # FOR DEBUGGING
-  environment.systemPackages = with pkgs.gst_all_1; [icamerasrc gstreamer gst-plugins-base gst-plugins-good];
-
-  environment.variables.GST_PLUGIN_SYSTEM_PATH_1_0 = lib.makeSearchPathOutput "lib" "lib/gstreamer-1.0" (with pkgs.gst_all_1; [icamerasrc gstreamer gst-plugins-base gst-plugins-good]);
-  environment.variables.GST_LD_LIBRARY_PATH = "${ipu6-camera-bin}/lib";
-  environment.variables.SUP_DAWG = "HEY, BRO";
 }
