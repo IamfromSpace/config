@@ -17,6 +17,7 @@ in
       "${nixos_hardware}/common/cpu/intel"
       "${nixos_hardware}/common/pc/laptop"
       "${nixos_hardware}/common/pc/ssd"
+      ./xps-13-9315-camera.nix
     ];
 
   # Use the systemd-boot EFI boot loader.
@@ -36,7 +37,10 @@ in
 
   # This seems be a requirement for XPS-13 to load lightdm.  Otherwise X11
   # loads but doesn't seem to do anything.
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  # Using 6_1_hardened (with WIP webcam workarounds) is a choppy disaster.
+  # Latest (6.2) hangs on suspend with some of the webcam workarounds, but 6.1 is fine
+  boot.kernelPackages =
+    pkgs.linuxKernel.packages.linux_6_1;
 
   # Ensure that closing the lid of the laptop puts it to sleep (XPS 13 specific)
   boot.kernelParams = [ "mem_sleep_default=deep" ];
@@ -154,7 +158,7 @@ in
   # By default, NixOS only allows freely licensed software.  Rather than
   # disabling this, we can allow specific packages.
   nixpkgs.config.allowUnfreePredicate =
-    pkg: (lib.getName pkg) == "zoom";
+    pkg: (lib.getName pkg) == "zoom" || (lib.getName pkg) == "ipu6-camera-bin" || (lib.getName pkg) == "ipu6ep-camera-bin" || (lib.getName pkg) == "ivsc-firmware";
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
