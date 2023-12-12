@@ -173,7 +173,7 @@ stdenv.mkDerivation rec {
       src = builtins.fetchGit {
         url = "https://git.launchpad.net/~vicamo/+git/intel-ipu6-dkms";
         rev = "d44f973c27aa7dc77512f808ae84fda9846cdd4b";
-        ref = "ubuntu/devel";
+        allRefs = true;
       };
 
       nativeBuildInputs = config.boot.kernelPackages.kernel.moduleBuildDependencies;
