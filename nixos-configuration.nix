@@ -5,9 +5,52 @@
 { config, lib, pkgs, ... }: with builtins;
 
 let
+  # Need specific drivers for our webcam which are not available in 22.11, only
+  # unstable.  Rather than switching to unstable, we just add in these specific
+  # packages based on their derivation descriptions.  The derivations don't
+  # have that many requirements, so by adding the two locally, we can get this
+  # working.
+  # From https://github.com/NixOS/nixpkgs/blob/4361baa782dc3d3b35fd455a1adc370681d9187c/pkgs/os-specific/linux/firmware/ipu6-camera-bins/default.nix
+  ipu6-bin = (pkgs.callPackage ./ipu6-bin.nix { ipuVersion = "ipu6ep"; });
+  # From https://github.com/NixOS/nixpkgs/blob/4361baa782dc3d3b35fd455a1adc370681d9187c/pkgs/os-specific/linux/firmware/ipu6-camera-bins/default.nix
+  # From https://github.com/NixOS/nixpkgs/blob/4361baa782dc3d3b35fd455a1adc370681d9187c/pkgs/development/libraries/ipu6-camera-hal/default.nix
+  # Also, that file needs to be slightly modified to have ipu6 -> ipu6ep in a couple places
+  ipu6-hal = (pkgs.callPackage ./ipu6-hal.nix { "ipu6ep-camera-bin" = ipu6-bin; });
+
   # There's no XPS 13 9315 entry, so we cobble together a few
   # pieces from here.
   nixos_hardware = builtins.fetchGit { url = "https://github.com/NixOS/nixos-hardware.git"; };
+
+  # The 12th Generation (Alder Lake) Intel integrated webcam absolutely sucks
+  # in terms of compatibility.  This repo brings us the packages we need.
+  ipu6 = builtins.fetchGit {
+    url = https://github.com/Mitame/ipu6-nix;
+    ref = "master";
+    rev = "8c04fa3c6267e1f8ebad5b270c8968a25f6c2c8e";
+    shallow = true;
+  };
+
+  nixpkgsUnstable = builtins.fetchGit {
+    url = https://github.com/NixOS/nixpkgs;
+    ref = "nixos-unstable";
+    rev = "9a6aabc4740790ef3bbb246b86d029ccf6759658";
+    shallow = true;
+  };
+
+  # ivsc-driver = (pkgs.callPackage "${nixpkgsUnstable}/pkgs/os-specific/linux/ivsc-driver/default.nix" {
+  #   kernel = pkgs.linuxKernel.packages.linux_6_1.kernel;
+  # });
+
+  # ivsc-firmware = (pkgs.callPackage "${nixpkgsUnstable}/pkgs/os-specific/linux/firmware/ivsc-firmware/default.nix" {});
+
+  icamerasrc = (pkgs.callPackage "${nixpkgsUnstable}/pkgs/development/libraries/gstreamer/icamerasrc/default.nix" {
+    ipu6-camera-hal = ipu6-hal;
+  });
+
+  unstable = import
+    (builtins.fetchTarball https://github.com/nixos/nixpkgs/tarball/9c8ff8b426a8b07b9e0a131ac3218740dc85ba1e)
+    # reuse the current configuration
+    { config = config.nixpkgs.config; };
 
 in
 {
