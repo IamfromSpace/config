@@ -19,7 +19,12 @@ let
 
   # There's no XPS 13 9315 entry, so we cobble together a few
   # pieces from here.
-  nixos_hardware = builtins.fetchGit { url = "https://github.com/NixOS/nixos-hardware.git"; };
+  nixos_hardware =
+    builtins.fetchGit {
+      url = "https://github.com/NixOS/nixos-hardware.git";
+      ref = "master";
+      rev = "a4e2b7909fc1bdf30c30ef21d388fde0b5cdde4a";
+    };
 
   # The 12th Generation (Alder Lake) Intel integrated webcam absolutely sucks
   # in terms of compatibility.  This repo brings us the packages we need.
