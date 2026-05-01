@@ -190,7 +190,18 @@ in
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    vim
+    ((vim.override {}).customize {
+      vimrcConfig = {
+        packages.myVimPackage = with vimPlugins; {
+          start = [
+            # TODO: More plugins
+            vim-nix
+            lean-nvim
+          ];
+        };
+        customRC = builtins.readFile ./.vimrc;
+      };
+    })
     wget
     git
     networkmanagerapplet
