@@ -121,7 +121,9 @@ in
   services.xserver = {
     enable = true;
     autorun = true;
-    layout = "dvorak";
+    # layout = "dvorak";
+    layout = "us";
+    xkbVariant = "dvorak";
 
     # Touchpad options
     libinput = {
