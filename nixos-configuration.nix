@@ -137,7 +137,16 @@ in
     group = "users";
     home = "/home/nathan";
     isNormalUser = true;
-    extraGroups = [ "wheel" "video" "audio" "disk" "networkmanager" ]; # "wheel" enables ‘sudo’ for the user.
+    extraGroups = [
+      # "wheel" enables ‘sudo’ for the user.
+      "wheel"
+      "video"
+      "audio"
+      "disk"
+      "networkmanager"
+      # Full access to serial ports, especially useful for hardware development (microcontroller/fpga/etc)
+      "dialout"
+    ];
     packages = with pkgs; [
       chromium
       zoom-us
