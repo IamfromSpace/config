@@ -5,57 +5,14 @@
 { config, lib, pkgs, ... }: with builtins;
 
 let
-  # Need specific drivers for our webcam which are not available in 22.11, only
-  # unstable.  Rather than switching to unstable, we just add in these specific
-  # packages based on their derivation descriptions.  The derivations don't
-  # have that many requirements, so by adding the two locally, we can get this
-  # working.
-  # From https://github.com/NixOS/nixpkgs/blob/4361baa782dc3d3b35fd455a1adc370681d9187c/pkgs/os-specific/linux/firmware/ipu6-camera-bins/default.nix
-  ipu6-bin = (pkgs.callPackage ./ipu6-bin.nix { ipuVersion = "ipu6ep"; });
-  # From https://github.com/NixOS/nixpkgs/blob/4361baa782dc3d3b35fd455a1adc370681d9187c/pkgs/os-specific/linux/firmware/ipu6-camera-bins/default.nix
-  # From https://github.com/NixOS/nixpkgs/blob/4361baa782dc3d3b35fd455a1adc370681d9187c/pkgs/development/libraries/ipu6-camera-hal/default.nix
-  # Also, that file needs to be slightly modified to have ipu6 -> ipu6ep in a couple places
-  ipu6-hal = (pkgs.callPackage ./ipu6-hal.nix { "ipu6ep-camera-bin" = ipu6-bin; });
-
   # There's no XPS 13 9315 entry, so we cobble together a few
   # pieces from here.
   nixos_hardware =
     builtins.fetchGit {
       url = "https://github.com/NixOS/nixos-hardware.git";
       ref = "master";
-      rev = "a4e2b7909fc1bdf30c30ef21d388fde0b5cdde4a";
+      rev = "2096f3f411ce46e88a79ae4eafcfc9df8ed41c61";
     };
-
-  # The 12th Generation (Alder Lake) Intel integrated webcam absolutely sucks
-  # in terms of compatibility.  This repo brings us the packages we need.
-  ipu6 = builtins.fetchGit {
-    url = https://github.com/Mitame/ipu6-nix;
-    ref = "master";
-    rev = "8c04fa3c6267e1f8ebad5b270c8968a25f6c2c8e";
-    shallow = true;
-  };
-
-  nixpkgsUnstable = builtins.fetchGit {
-    url = https://github.com/NixOS/nixpkgs;
-    ref = "nixos-unstable";
-    rev = "9a6aabc4740790ef3bbb246b86d029ccf6759658";
-    shallow = true;
-  };
-
-  # ivsc-driver = (pkgs.callPackage "${nixpkgsUnstable}/pkgs/os-specific/linux/ivsc-driver/default.nix" {
-  #   kernel = pkgs.linuxKernel.packages.linux_6_1.kernel;
-  # });
-
-  # ivsc-firmware = (pkgs.callPackage "${nixpkgsUnstable}/pkgs/os-specific/linux/firmware/ivsc-firmware/default.nix" {});
-
-  icamerasrc = (pkgs.callPackage "${nixpkgsUnstable}/pkgs/development/libraries/gstreamer/icamerasrc/default.nix" {
-    ipu6-camera-hal = ipu6-hal;
-  });
-
-  unstable = import
-    (builtins.fetchTarball https://github.com/nixos/nixpkgs/tarball/9c8ff8b426a8b07b9e0a131ac3218740dc85ba1e)
-    # reuse the current configuration
-    { config = config.nixpkgs.config; };
 
 in
 {
@@ -65,7 +22,6 @@ in
       "${nixos_hardware}/common/cpu/intel"
       "${nixos_hardware}/common/pc/laptop"
       "${nixos_hardware}/common/pc/ssd"
-      ./xps-13-9315-camera.nix
     ];
 
   # Use the systemd-boot EFI boot loader.
@@ -83,12 +39,11 @@ in
     };
   };
 
-  # This seems be a requirement for XPS-13 to load lightdm.  Otherwise X11
-  # loads but doesn't seem to do anything.
-  # Using 6_1_hardened (with WIP webcam workarounds) is a choppy disaster.
-  # Latest (6.2) hangs on suspend with some of the webcam workarounds, but 6.1 is fine
-  boot.kernelPackages =
-    pkgs.linuxKernel.packages.linux_6_1;
+  # In 6.18 the webcam looks awful, but it does work
+  # Copy fail and related patch
+  boot.kernelPackages = lib.mkIf (lib.versionOlder pkgs.linux.version "6.18.31") (
+    lib.mkDefault pkgs.linuxPackages_6_18
+  );
 
   # Ensure that closing the lid of the laptop puts it to sleep (XPS 13 specific)
   boot.kernelParams = [ "mem_sleep_default=deep" ];
@@ -143,6 +98,13 @@ in
     };
   };
 
+  # Needed for webcam
+  xdg.portal = {
+    enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    config.common.default = [ "gtk" ];
+  };
+
   # Get some nice transparency out of inactive windows using
   # the picom compositor (not something that XMonad or X11
   # provide themselves).
@@ -160,14 +122,14 @@ in
   # services.printing.enable = true;
 
   # Enable sound.
-  sound.enable = true;
-  hardware.pulseaudio = {
-    enable = true;
-    # Needed to get any audio output on the XPS 13
-    package = pkgs.pulseaudioFull;
-  };
-  # Needed to get audio input on the XPS 13
   services.pipewire.enable = true;
+
+  # Fix internal microphone on XPS 13, suspend permanently drops the hardware gain
+  # TODO: Occasionally the mic just seems to totally die after suspend, but another suspend+resume seems to fix it.
+  powerManagement.powerUpCommands = ''
+    ${pkgs.alsa-utils}/bin/amixer -c sofsoundwire cset name='rt714 FU0C Boost' 3
+    ${pkgs.alsa-utils}/bin/amixer -c sofsoundwire cset name='rt714 FU0E Boost' 3
+  '';
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.nathan = {
@@ -181,6 +143,14 @@ in
       zoom-us
     ];
     uid = 1000;
+  };
+
+  programs.firefox = {
+    enable = true;
+    preferences = {
+      # For XPS 13 webcam
+      "media.webrtc.camera.allow-pipewire" = true;
+    };
   };
 
   environment.variables.EDITOR = "vim";
